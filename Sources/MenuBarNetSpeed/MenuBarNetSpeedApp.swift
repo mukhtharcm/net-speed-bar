@@ -9,8 +9,19 @@ struct MenuBarNetSpeedApp: App {
         MenuBarExtra {
             ContentView(viewModel: viewModel)
         } label: {
-            Text(viewModel.menuBarTitle)
-                .monospacedDigit()
+            HStack(spacing: 1) {
+                Image(systemName: "arrow.down")
+                    .font(.system(size: 8, weight: .semibold))
+                Text(viewModel.downloadCompact)
+                    .monospacedDigit()
+                    .padding(.trailing, 3)
+
+                Image(systemName: "arrow.up")
+                    .font(.system(size: 8, weight: .semibold))
+                Text(viewModel.uploadCompact)
+                    .monospacedDigit()
+            }
+            .font(.system(size: 11))
         }
         .menuBarExtraStyle(.window)
     }

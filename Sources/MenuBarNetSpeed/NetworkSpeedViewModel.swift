@@ -42,6 +42,14 @@ final class NetworkSpeedViewModel: ObservableObject {
         "↓\(Self.compactFormat(bytesPerSecond: downloadBytesPerSecond)) ↑\(Self.compactFormat(bytesPerSecond: uploadBytesPerSecond))"
     }
 
+    var downloadCompact: String {
+        Self.compactFormat(bytesPerSecond: downloadBytesPerSecond)
+    }
+
+    var uploadCompact: String {
+        Self.compactFormat(bytesPerSecond: uploadBytesPerSecond)
+    }
+
     func start() {
         guard timerCancellable == nil else { return }
 
