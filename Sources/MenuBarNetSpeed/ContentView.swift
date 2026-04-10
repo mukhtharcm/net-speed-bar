@@ -103,28 +103,57 @@ struct ContentView: View {
         }
         .frame(width: 300)
         .onAppear {
+            viewModel.setPopoverVisible(true)
             viewModel.start()
+        }
+        .onDisappear {
+            viewModel.setPopoverVisible(false)
         }
     }
 
     // MARK: - Header
 
     private var headerSection: some View {
-        HStack(spacing: 10) {
+        let conn = viewModel.connectionType
+        let isConnected = viewModel.showsConnectedState
+        let iconTint: Color = {
+            switch conn {
+            case .wifi: return .green
+            case .ethernet: return .blue
+            case .vpn: return .orange
+            case .cellular: return .purple
+            case .other: return .teal
+            case .none: return .secondary
+            }
+        }()
+
+        return HStack(spacing: 10) {
             ZStack {
                 Circle()
-                    .fill(viewModel.showsConnectedWiFiState ? Color.green.opacity(0.15) : Color.secondary.opacity(0.1))
+                    .fill(iconTint.opacity(isConnected ? 0.15 : 0.1))
                     .frame(width: 32, height: 32)
 
-                Image(systemName: viewModel.showsConnectedWiFiState ? "wifi" : "wifi.slash")
+                Image(systemName: conn.icon)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(viewModel.showsConnectedWiFiState ? .green : .secondary)
+                    .foregroundStyle(iconTint)
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(viewModel.networkDisplayName)
-                    .font(.system(size: 13, weight: .semibold))
-                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(viewModel.networkDisplayName)
+                        .font(.system(size: 13, weight: .semibold))
+                        .lineLimit(1)
+
+                    // Show VPN badge when active alongside a physical connection
+                    if viewModel.isVPNActive && conn != .vpn {
+                        Text("VPN")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(Capsule().fill(.orange))
+                    }
+                }
 
                 Text(viewModel.interfaceSummary)
                     .font(.system(size: 11))
