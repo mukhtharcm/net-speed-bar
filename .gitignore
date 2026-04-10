@@ -1,0 +1,5 @@
+.build/
+.home/
+dist/
+*.swp
+.DS_Store
