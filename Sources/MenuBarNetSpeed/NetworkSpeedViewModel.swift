@@ -8,6 +8,10 @@ final class NetworkSpeedViewModel: ObservableObject {
     @Published private(set) var networkName: String?
     @Published private(set) var activeInterfaces: [String] = []
     @Published private(set) var wifiInterfaceName: String?
+    @Published private(set) var downloadHistory: [UInt64] = []
+    @Published private(set) var uploadHistory: [UInt64] = []
+
+    private static let historyCapacity = 60
 
     private let trafficReader = NetworkTrafficReader()
     private let wifiProvider = WiFiDetailsProvider()
@@ -131,6 +135,19 @@ final class NetworkSpeedViewModel: ObservableObject {
 
         downloadBytesPerSecond = UInt64(Double(receivedDelta) / interval)
         uploadBytesPerSecond = UInt64(Double(sentDelta) / interval)
+
+        appendHistory(download: downloadBytesPerSecond, upload: uploadBytesPerSecond)
+    }
+
+    private func appendHistory(download: UInt64, upload: UInt64) {
+        downloadHistory.append(download)
+        uploadHistory.append(upload)
+        if downloadHistory.count > Self.historyCapacity {
+            downloadHistory.removeFirst(downloadHistory.count - Self.historyCapacity)
+        }
+        if uploadHistory.count > Self.historyCapacity {
+            uploadHistory.removeFirst(uploadHistory.count - Self.historyCapacity)
+        }
     }
 
     private static let byteCountFormatter: ByteCountFormatter = {

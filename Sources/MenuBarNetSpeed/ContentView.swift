@@ -42,6 +42,26 @@ struct ContentView: View {
             .padding(.top, settings.showNetworkName ? 0 : 16)
             .padding(.bottom, 14)
 
+            // Sparkline
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    legendDot(color: .blue, label: "Down")
+                    legendDot(color: .purple, label: "Up")
+                    Spacer()
+                    Text("Last 60 samples")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.quaternary)
+                }
+
+                SparklineView(
+                    downloadSamples: viewModel.downloadHistory,
+                    uploadSamples: viewModel.uploadHistory,
+                    capacity: 60
+                )
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 14)
+
             footerSection
                 .padding(.horizontal, 16)
                 .padding(.bottom, 14)
@@ -157,5 +177,16 @@ struct ContentView: View {
             return "Live · every second"
         }
         return "Live · every \(Int(interval))s"
+    }
+
+    private func legendDot(color: Color, label: String) -> some View {
+        HStack(spacing: 3) {
+            Circle()
+                .fill(color.opacity(0.7))
+                .frame(width: 5, height: 5)
+            Text(label)
+                .font(.system(size: 9))
+                .foregroundStyle(.secondary)
+        }
     }
 }
