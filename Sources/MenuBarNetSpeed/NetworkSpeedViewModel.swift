@@ -7,6 +7,7 @@ final class NetworkSpeedViewModel: ObservableObject {
     @Published private(set) var uploadBytesPerSecond: UInt64 = 0
     @Published private(set) var networkName: String?
     @Published private(set) var activeInterfaces: [String] = []
+    @Published private(set) var wifiInterfaceName: String?
 
     private let trafficReader = NetworkTrafficReader()
     private let wifiProvider = WiFiDetailsProvider()
@@ -24,6 +25,14 @@ final class NetworkSpeedViewModel: ObservableObject {
     var networkDisplayName: String {
         if let networkName, !networkName.isEmpty {
             return networkName
+        }
+
+        if let wifiInterfaceName, activeInterfaces.contains(wifiInterfaceName) {
+            return "Wi-Fi Connected"
+        }
+
+        if let primaryInterface = activeInterfaces.first {
+            return "Connected via \(Self.interfaceDisplayName(for: primaryInterface))"
         }
 
         return "Network Unavailable"
@@ -63,12 +72,15 @@ final class NetworkSpeedViewModel: ObservableObject {
     }
 
     private func refresh() {
-        networkName = wifiProvider.currentSSID()
+        let wifiDetails = wifiProvider.currentDetails()
+        networkName = wifiDetails.ssid
+        wifiInterfaceName = wifiDetails.interfaceName
 
         guard let snapshot = trafficReader.readSnapshot() else {
             downloadBytesPerSecond = 0
             uploadBytesPerSecond = 0
             activeInterfaces = []
+            wifiInterfaceName = wifiDetails.interfaceName
             lastSnapshot = nil
             return
         }
@@ -122,5 +134,25 @@ final class NetworkSpeedViewModel: ObservableObject {
 
         let precision = value >= 100 ? 0 : (value >= 10 ? 1 : 2)
         return String(format: "%.\(precision)f%@", value, units[unitIndex])
+    }
+
+    private static func interfaceDisplayName(for interfaceName: String) -> String {
+        if interfaceName.hasPrefix("en") {
+            return "Wi-Fi / Ethernet"
+        }
+
+        if interfaceName.hasPrefix("utun") {
+            return "VPN"
+        }
+
+        if interfaceName.hasPrefix("bridge") {
+            return "Bridge"
+        }
+
+        if interfaceName.hasPrefix("pdp_ip") {
+            return "Cellular"
+        }
+
+        return interfaceName
     }
 }
