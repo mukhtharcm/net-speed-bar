@@ -2,16 +2,28 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var viewModel: NetworkSpeedViewModel
+    @ObservedObject var settings: SettingsManager
+    @State private var showingSettings = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            headerSection
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 12)
+        if showingSettings {
+            SettingsView(settings: settings, isPresented: $showingSettings)
+        } else {
+            mainContent
+        }
+    }
 
-            // Speed cards
+    // MARK: - Main Content
+
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            if settings.showNetworkName {
+                headerSection
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+                    .padding(.bottom, 12)
+            }
+
             HStack(spacing: 10) {
                 speedCard(
                     title: "Download",
@@ -27,9 +39,9 @@ struct ContentView: View {
                 )
             }
             .padding(.horizontal, 16)
+            .padding(.top, settings.showNetworkName ? 0 : 16)
             .padding(.bottom, 14)
 
-            // Footer
             footerSection
                 .padding(.horizontal, 16)
                 .padding(.bottom, 14)
@@ -109,11 +121,20 @@ struct ContentView: View {
                 .fill(.green)
                 .frame(width: 6, height: 6)
 
-            Text("Live · updates every second")
+            Text(refreshLabel)
                 .font(.system(size: 10))
                 .foregroundStyle(.tertiary)
 
             Spacer()
+
+            Button {
+                showingSettings = true
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 12))
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
 
             Button {
                 NSApplication.shared.terminate(nil)
@@ -125,5 +146,13 @@ struct ContentView: View {
             .foregroundStyle(.secondary)
             .keyboardShortcut("q")
         }
+    }
+
+    private var refreshLabel: String {
+        let interval = settings.refreshInterval
+        if interval == 1 {
+            return "Live · every second"
+        }
+        return "Live · every \(Int(interval))s"
     }
 }

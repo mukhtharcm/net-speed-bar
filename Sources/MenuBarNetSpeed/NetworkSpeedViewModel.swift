@@ -11,7 +11,9 @@ final class NetworkSpeedViewModel: ObservableObject {
 
     private let trafficReader = NetworkTrafficReader()
     private let wifiProvider = WiFiDetailsProvider()
+    private let settings = SettingsManager.shared
     private var timerCancellable: AnyCancellable?
+    private var settingsCancellable: AnyCancellable?
     private var lastSnapshot: TrafficSnapshot?
 
     var downloadSpeedText: String {
@@ -63,8 +65,18 @@ final class NetworkSpeedViewModel: ObservableObject {
         guard timerCancellable == nil else { return }
 
         refresh()
+        startTimer(interval: settings.refreshInterval)
 
-        timerCancellable = Timer.publish(every: 1.0, on: .main, in: .common)
+        settingsCancellable = settings.$refreshInterval
+            .dropFirst()
+            .sink { [weak self] newInterval in
+                self?.startTimer(interval: newInterval)
+            }
+    }
+
+    private func startTimer(interval: Double) {
+        timerCancellable?.cancel()
+        timerCancellable = Timer.publish(every: interval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 self?.refresh()
