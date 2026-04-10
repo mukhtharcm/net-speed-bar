@@ -118,13 +118,19 @@ jobs:
           app_name="${APP_NAME:-Net Speed Bar}"
           zip_name="${app_name// /-}-${VERSION}.zip"
           dmg_name="${app_name// /-}-${VERSION}.dmg"
+          release_args=()
+
+          if [[ "$VERSION" == *-* ]]; then
+            release_args+=(--prerelease)
+          fi
 
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "dist/$VERSION/$zip_name" "dist/$VERSION/$dmg_name" --clobber
           else
             gh release create "$GITHUB_REF_NAME" "dist/$VERSION/$zip_name" "dist/$VERSION/$dmg_name" \
               --title "$app_name $VERSION" \
-              --generate-notes
+              --generate-notes \
+              "${release_args[@]}"
           fi
 
       - name: Write release summary
