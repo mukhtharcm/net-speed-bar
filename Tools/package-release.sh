@@ -30,17 +30,18 @@ dmgbuild_venv="$project_root/.build/dmgbuild-venv"
 dmgbuild_bin="$dmgbuild_venv/bin/dmgbuild"
 
 ensure_dmgbuild() {
-    if command -v dmgbuild >/dev/null 2>&1; then
+    if command -v dmgbuild >/dev/null 2>&1 && dmgbuild --version >/dev/null 2>&1; then
         dmgbuild_cmd="$(command -v dmgbuild)"
         return
     fi
 
-    if [[ -x "$dmgbuild_bin" ]]; then
+    if [[ -x "$dmgbuild_bin" ]] && "$dmgbuild_bin" --version >/dev/null 2>&1; then
         dmgbuild_cmd="$dmgbuild_bin"
         return
     fi
 
     echo "Installing dmgbuild $dmgbuild_version..."
+    rm -rf "$dmgbuild_venv"
     python3 -m venv "$dmgbuild_venv"
     "$dmgbuild_venv/bin/python" -m pip install --quiet "dmgbuild==$dmgbuild_version"
     dmgbuild_cmd="$dmgbuild_bin"
