@@ -41,11 +41,16 @@ final class SettingsManager: ObservableObject {
         didSet { UserDefaults.standard.set(showNetworkName, forKey: Keys.showNetworkName) }
     }
 
+    @Published var useBitsPerSecond: Bool {
+        didSet { UserDefaults.standard.set(useBitsPerSecond, forKey: Keys.useBitsPerSecond) }
+    }
+
     private enum Keys {
         static let refreshInterval = "refreshInterval"
         static let menuBarDisplayMode = "menuBarDisplayMode"
         static let launchAtLogin = "launchAtLogin"
         static let showNetworkName = "showNetworkName"
+        static let useBitsPerSecond = "useBitsPerSecond"
     }
 
     private init() {
@@ -55,6 +60,7 @@ final class SettingsManager: ObservableObject {
             Keys.menuBarDisplayMode: MenuBarDisplayMode.both.rawValue,
             Keys.launchAtLogin: false,
             Keys.showNetworkName: true,
+            Keys.useBitsPerSecond: false,
         ])
 
         let rawInterval = defaults.double(forKey: Keys.refreshInterval)
@@ -63,6 +69,7 @@ final class SettingsManager: ObservableObject {
             MenuBarDisplayMode(rawValue: defaults.integer(forKey: Keys.menuBarDisplayMode)) ?? .both
         self.launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
         self.showNetworkName = defaults.bool(forKey: Keys.showNetworkName)
+        self.useBitsPerSecond = defaults.bool(forKey: Keys.useBitsPerSecond)
     }
 
     private func updateLaunchAtLogin() {

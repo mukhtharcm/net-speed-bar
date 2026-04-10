@@ -38,6 +38,12 @@ struct SettingsView: View {
                         .controlSize(.small)
                 }
 
+                settingsRow("Use Bits per Second") {
+                    Toggle("", isOn: $settings.useBitsPerSecond)
+                        .toggleStyle(.switch)
+                        .controlSize(.small)
+                }
+
                 settingsRow("Launch at Login") {
                     Toggle("", isOn: $settings.launchAtLogin)
                         .toggleStyle(.switch)

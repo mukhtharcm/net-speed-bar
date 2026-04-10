@@ -25,11 +25,11 @@ final class NetworkSpeedViewModel: ObservableObject {
     private var lastSnapshot: TrafficSnapshot?
 
     var downloadSpeedText: String {
-        Self.format(bytesPerSecond: downloadBytesPerSecond)
+        Self.format(bytesPerSecond: downloadBytesPerSecond, asBits: settings.useBitsPerSecond)
     }
 
     var uploadSpeedText: String {
-        Self.format(bytesPerSecond: uploadBytesPerSecond)
+        Self.format(bytesPerSecond: uploadBytesPerSecond, asBits: settings.useBitsPerSecond)
     }
 
     var networkDisplayName: String {
@@ -62,11 +62,11 @@ final class NetworkSpeedViewModel: ObservableObject {
     }
 
     var downloadCompact: String {
-        Self.compactFormat(bytesPerSecond: downloadBytesPerSecond)
+        Self.compactFormat(bytesPerSecond: downloadBytesPerSecond, asBits: settings.useBitsPerSecond)
     }
 
     var uploadCompact: String {
-        Self.compactFormat(bytesPerSecond: uploadBytesPerSecond)
+        Self.compactFormat(bytesPerSecond: uploadBytesPerSecond, asBits: settings.useBitsPerSecond)
     }
 
     var totalDownloadedText: String {
@@ -78,11 +78,11 @@ final class NetworkSpeedViewModel: ObservableObject {
     }
 
     var peakDownloadText: String {
-        Self.format(bytesPerSecond: peakDownloadBytesPerSecond)
+        Self.format(bytesPerSecond: peakDownloadBytesPerSecond, asBits: settings.useBitsPerSecond)
     }
 
     var peakUploadText: String {
-        Self.format(bytesPerSecond: peakUploadBytesPerSecond)
+        Self.format(bytesPerSecond: peakUploadBytesPerSecond, asBits: settings.useBitsPerSecond)
     }
 
     func start() {
@@ -184,11 +184,33 @@ final class NetworkSpeedViewModel: ObservableObject {
         return formatter
     }()
 
-    private static func format(bytesPerSecond: UInt64) -> String {
-        "\(byteCountFormatter.string(fromByteCount: Int64(bytesPerSecond)))/s"
+    private static func format(bytesPerSecond: UInt64, asBits: Bool = false) -> String {
+        if asBits {
+            return formatBits(bytesPerSecond: bytesPerSecond)
+        }
+        return "\(byteCountFormatter.string(fromByteCount: Int64(bytesPerSecond)))/s"
     }
 
-    private static func compactFormat(bytesPerSecond: UInt64) -> String {
+    private static func formatBits(bytesPerSecond: UInt64) -> String {
+        let bitsPerSecond = Double(bytesPerSecond) * 8
+        let units = ["bps", "Kbps", "Mbps", "Gbps"]
+        var value = bitsPerSecond
+        var unitIndex = 0
+        while value >= 1000 && unitIndex < units.count - 1 {
+            value /= 1000
+            unitIndex += 1
+        }
+        if unitIndex == 0 {
+            return "\(Int(value)) \(units[0])"
+        }
+        let precision = value >= 100 ? 0 : (value >= 10 ? 1 : 2)
+        return String(format: "%.\(precision)f %@", value, units[unitIndex])
+    }
+
+    private static func compactFormat(bytesPerSecond: UInt64, asBits: Bool = false) -> String {
+        if asBits {
+            return compactFormatBits(bytesPerSecond: bytesPerSecond)
+        }
         if bytesPerSecond < 1024 {
             return "\(bytesPerSecond)B/s"
         }
@@ -202,6 +224,22 @@ final class NetworkSpeedViewModel: ObservableObject {
             unitIndex += 1
         } while value >= 1024 && unitIndex < units.count - 1
 
+        let precision = value >= 100 ? 0 : (value >= 10 ? 1 : 2)
+        return String(format: "%.\(precision)f%@", value, units[unitIndex])
+    }
+
+    private static func compactFormatBits(bytesPerSecond: UInt64) -> String {
+        let bitsPerSecond = Double(bytesPerSecond) * 8
+        if bitsPerSecond < 1000 {
+            return "\(Int(bitsPerSecond))bps"
+        }
+        let units = ["Kb", "Mb", "Gb"]
+        var value = bitsPerSecond
+        var unitIndex = -1
+        repeat {
+            value /= 1000
+            unitIndex += 1
+        } while value >= 1000 && unitIndex < units.count - 1
         let precision = value >= 100 ? 0 : (value >= 10 ? 1 : 2)
         return String(format: "%.\(precision)f%@", value, units[unitIndex])
     }
