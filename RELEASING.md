@@ -7,7 +7,7 @@
 3. Create and push a tag:
 
 ```bash
-cd /Users/mukhtharcm/dev/experiments/MenuBarNetSpeed
+cd /path/to/net-speed-bar
 git checkout main
 git pull --ff-only
 git tag v1.0.5          # replace with your version
@@ -22,8 +22,8 @@ git push origin v1.0.5
    - Uploads `.dmg` and `.zip`
 
 5. After that, check:
-   - [Releases page](https://github.com/mukhtharcm/MenuBarNetSpeed/releases)
-   - [Actions run](https://github.com/mukhtharcm/MenuBarNetSpeed/actions)
+   - [Releases page](https://github.com/mukhtharcm/net-speed-bar/releases)
+   - [Actions run](https://github.com/mukhtharcm/net-speed-bar/actions)
 
 ## Patch Release Example
 

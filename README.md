@@ -12,7 +12,7 @@ Net Speed Bar is a lightweight macOS menu bar app that shows your current downlo
 
 Download the latest release from:
 
-https://github.com/mukhtharcm/MenuBarNetSpeed/releases
+https://github.com/mukhtharcm/net-speed-bar/releases
 
 Open the `.dmg` or `.zip`, move `Net Speed Bar.app` to `Applications`, and launch it.
 
