@@ -6,15 +6,25 @@ Net Speed Bar is a lightweight macOS menu bar app that shows your current downlo
 
 - Live download and upload speed in the menu bar
 - Popover with larger speed cards and connection details
+- Latency monitor with configurable ping target
+- Historical bandwidth usage with bar charts (daily / weekly / monthly)
+- Threshold alerts with system notifications
+- Session totals, peak speed tracking, sparkline chart
+- Bits or bytes display toggle
+- Configurable refresh interval and launch at login
 - Small, menu-bar-only app with no Dock icon
 
 ## Install
 
-Download the latest release from:
+### Homebrew
 
-https://github.com/mukhtharcm/net-speed-bar/releases
+```sh
+brew install --cask mukhtharcm/tap/net-speed-bar
+```
 
-Open the `.dmg` or `.zip`, move `Net Speed Bar.app` to `Applications`, and launch it.
+### Manual Download
+
+Download the latest `.dmg` or `.zip` from [Releases](https://github.com/mukhtharcm/net-speed-bar/releases), move `Net Speed Bar.app` to `Applications`, and launch it.
 
 ## Usage
 
