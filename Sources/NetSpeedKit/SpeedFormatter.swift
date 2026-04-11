@@ -120,4 +120,39 @@ public enum SpeedFormatter {
         }
         return nil
     }
+
+    // MARK: - Date Formatting (for historical usage)
+
+    private static let hourFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "ha"  // "2PM"
+        return f
+    }()
+
+    private static let shortDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMM d"  // "Apr 11"
+        return f
+    }()
+
+    private static let weekdayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "EEE"  // "Mon"
+        return f
+    }()
+
+    /// Format an hour label like "2PM"
+    public static func formatHour(_ date: Date) -> String {
+        hourFormatter.string(from: date)
+    }
+
+    /// Format a short date like "Apr 11"
+    public static func formatShortDate(_ date: Date) -> String {
+        shortDateFormatter.string(from: date)
+    }
+
+    /// Format a weekday like "Mon"
+    public static func formatWeekday(_ date: Date) -> String {
+        weekdayFormatter.string(from: date)
+    }
 }

@@ -3,7 +3,14 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject var viewModel: NetworkSpeedViewModel
     @ObservedObject var settings: SettingsManager
+    @ObservedObject var usageTracker: UsageTracker
     @State private var showingSettings = false
+    @State private var selectedTab: Tab = .live
+
+    enum Tab: String, CaseIterable {
+        case live = "Live"
+        case usage = "Usage"
+    }
 
     var body: some View {
         if showingSettings {
@@ -18,6 +25,74 @@ struct ContentView: View {
     // MARK: - Main Content
 
     private var mainContent: some View {
+        VStack(spacing: 0) {
+            // Tab bar
+            tabPicker
+                .padding(.horizontal, 16)
+                .padding(.top, 14)
+                .padding(.bottom, 10)
+
+            if selectedTab == .live {
+                liveContent
+            } else {
+                UsageView(tracker: usageTracker, settings: settings)
+                    // UsageView provides its own padding and frame
+                    .padding(.top, -16)  // Offset UsageView's internal top padding since we have the tab bar
+            }
+
+            footerSection
+                .padding(.horizontal, 16)
+                .padding(.bottom, 14)
+        }
+        .frame(width: 300)
+        .onAppear {
+            viewModel.setPopoverVisible(true)
+            viewModel.start()
+        }
+        .onDisappear {
+            viewModel.setPopoverVisible(false)
+        }
+    }
+
+    // MARK: - Tab Picker
+
+    private var tabPicker: some View {
+        HStack(spacing: 0) {
+            ForEach(Tab.allCases, id: \.rawValue) { tab in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        selectedTab = tab
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: tab == .live ? "speedometer" : "chart.bar.fill")
+                            .font(.system(size: 10))
+                        Text(tab.rawValue)
+                            .font(.system(size: 11, weight: selectedTab == tab ? .semibold : .regular))
+                    }
+                    .foregroundStyle(selectedTab == tab ? .primary : .secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 5)
+                    .background {
+                        if selectedTab == tab {
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(Color.primary.opacity(0.08))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(2)
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.primary.opacity(0.03))
+        }
+    }
+
+    // MARK: - Live Content
+
+    private var liveContent: some View {
         VStack(spacing: 0) {
             if settings.showNetworkName {
                 headerSection
@@ -43,7 +118,7 @@ struct ContentView: View {
                 )
             }
             .padding(.horizontal, 16)
-            .padding(.top, settings.showNetworkName ? 0 : 16)
+            .padding(.top, settings.showNetworkName ? 0 : 6)
             .padding(.bottom, 14)
 
             // Latency pill
@@ -103,18 +178,6 @@ struct ContentView: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
-
-            footerSection
-                .padding(.horizontal, 16)
-                .padding(.bottom, 14)
-        }
-        .frame(width: 300)
-        .onAppear {
-            viewModel.setPopoverVisible(true)
-            viewModel.start()
-        }
-        .onDisappear {
-            viewModel.setPopoverVisible(false)
         }
     }
 

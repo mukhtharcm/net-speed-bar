@@ -44,6 +44,7 @@ final class NetworkSpeedViewModel: ObservableObject {
     private let wifiProvider = WiFiDetailsProvider()
     private let settings = SettingsManager.shared
     private let latencyMonitor = LatencyMonitor()
+    private var usageTracker: UsageTracker?
     private var refreshTimer: Timer?
     private var pathMonitor: NWPathMonitor?
     private var settingsCancellables = Set<AnyCancellable>()
@@ -304,12 +305,25 @@ final class NetworkSpeedViewModel: ObservableObject {
         checkSpeedThreshold()
 
         appendHistory(download: downloadBytesPerSecond, upload: uploadBytesPerSecond)
+
+        // Feed historical usage tracker
+        usageTracker?.recordSample(
+            downloadDelta: receivedDelta,
+            uploadDelta: sentDelta,
+            downloadBytesPerSec: downloadBytesPerSecond,
+            uploadBytesPerSec: uploadBytesPerSecond
+        )
     }
 
     func setPopoverVisible(_ isVisible: Bool) {
         guard isPopoverVisible != isVisible else { return }
         isPopoverVisible = isVisible
         refreshNetworkName()
+    }
+
+    /// Connect the usage tracker so refresh cycles feed it samples.
+    func setUsageTracker(_ tracker: UsageTracker) {
+        usageTracker = tracker
     }
 
     private func appendHistory(download: UInt64, upload: UInt64) {

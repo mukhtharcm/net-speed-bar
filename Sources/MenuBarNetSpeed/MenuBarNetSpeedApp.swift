@@ -5,10 +5,14 @@ struct MenuBarNetSpeedApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var viewModel = NetworkSpeedViewModel()
     @StateObject private var settings = SettingsManager.shared
+    @StateObject private var usageTracker = UsageTracker.shared
 
     var body: some Scene {
         MenuBarExtra {
-            ContentView(viewModel: viewModel, settings: settings)
+            ContentView(viewModel: viewModel, settings: settings, usageTracker: usageTracker)
+                .onAppear {
+                    viewModel.setUsageTracker(usageTracker)
+                }
         } label: {
             HStack(spacing: 1) {
                 if settings.menuBarDisplayMode != .uploadOnly {
