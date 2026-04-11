@@ -187,8 +187,8 @@ jobs:
           cask_path.write_text(content)
           PY
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "mukhtharcm"
+          git config user.email "56378562+mukhtharcm@users.noreply.github.com"
           git add Casks/net-speed-bar.rb
 
           if git diff --cached --quiet; then
