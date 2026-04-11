@@ -1,0 +1,52 @@
+name: Update Homebrew Tap
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-cask:
+    if: "!github.event.release.prerelease"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract version from tag
+        id: meta
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download release zip and compute SHA256
+        id: sha
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          zip_name="Net-Speed-Bar-${VERSION}.zip"
+          gh release download "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$zip_name" \
+            --dir .
+
+          sha256=$(sha256sum "$zip_name" | awk '{print $1}')
+          echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Update cask in homebrew-tap
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          SHA256: ${{ steps.sha.outputs.sha256 }}
+        run: |
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/mukhtharcm/homebrew-tap.git" tap
+          cd tap
+
+          cask="Casks/net-speed-bar.rb"
+
+          sed -i "s/version \".*\"/version \"${VERSION}\"/" "$cask"
+          sed -i "s/sha256 \".*\"/sha256 \"${SHA256}\"/" "$cask"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$cask"
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Update net-speed-bar to ${VERSION}"
+          git push
