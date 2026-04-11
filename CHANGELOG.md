@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-04-11
+
+### Added
+- **Historical usage tracking**: bandwidth is now tracked hourly and aggregated into daily summaries, persisted to disk.
+- **Usage tab**: new tabbed UI with "Live" and "Usage" views; the Usage tab shows total downloaded/uploaded, a bar chart (hourly or daily), and peak speeds.
+- **Period selector**: view usage for Today, 7 Days, or 30 Days.
+- Data is retained for 30 days (hourly) and 365 days (daily), with automatic pruning and rollup.
+
+### Fixed
+- Latency display in the menu bar now reliably updates (stored `@Published` property instead of computed).
+
+### Changed
+- ContentView redesigned with a tab picker at the top.
+
 ## [1.2.0] - 2026-04-10
 
 ### Added
